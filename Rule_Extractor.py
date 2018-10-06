@@ -1,3 +1,7 @@
+def max_occ_per_val(ditt):
+
+    max_per_val_attr = max(ditt, key=ditt.get)
+    return max_per_val_attr
 
 
 def matrix_to_csv(file):
@@ -75,47 +79,107 @@ def different_values(lista):
     return values
 
 
-def max_occ_per_val (ditt):
-
+def max_occ_per_val(ditt):
     max_per_val_attr = max(ditt, key=ditt.get)
     return max_per_val_attr
 
 
-def attrib_error(values_dict, solo_values, attrib):
-    total_attrib_error = 0
-    values_errors = []
-#    for i in solo_values[attrib]:
- #       for el in range(0, len(values_dict[attrib])):
-  #          err = 0
-   #         piu_freq = max(values_dict[attrib], key=values_dict[attrib].count)
-    #        print(piu_freq)
-     #       values_errors.append(err)
+def total_error(lista, attribute, target):
+    target_list = list(set(target))
+
+    primo = target_list[2]
+    secondo = target_list[1]
+    terzo = target_list[0]
+    attr = ["", primo, secondo, terzo]
+    max_dict = dict()
+    errors = dict()
+    input_v = [0, 1, 2, 3]
+    corrects = 0
+    print(target_list)
+    for value in lista:
+        ditt = dict()
+
+        for el in set(target):       # initialized ditt
+            ditt[el] = 0
+
+        for el in range(0, len(attribute)):
 
 
-    return total_attrib_error
+            if attribute[el] == value and target[el] == primo:
+                ditt[target[el]] += 1
+
+            elif attribute[el] == value and target[el] == secondo:
+                ditt[target[el]] += 1
+
+            elif attribute[el] == value and target[el] == terzo:
+                ditt[target[el]] += 1
+
+            max_dict[value] = max_occ_per_val(ditt)     # finds the most frequent value, per attrib_value
+
+
+        print(value, "----->", ditt)
+
+        errors[value] = 1 - (ditt[max_dict[value]] / attribute.count(input_v[value]))
+
+
+        corrects += max(ditt.values())
+
+
+
+
+    print("corrects  ", corrects)
+    print("remaining",len(target)-corrects)
+    error = (len(target)- corrects)/len(target)
+    print("______",error)
+   # for err in errors:
+    #    corrects += errors[err]
+
+
+    return error      # each attrib value with his most frequent target value
 
 
 def main():
 
-    total_error = dict()
+    errors_dict = dict()
     values_dict = values_to_dictionary('lenses.txt')
     target_col = values_dict.__getitem__("lenses_target")
     values_dict.__delitem__("lenses_target")
     single_values_dict = dict()
 
+
     for code in range(1, 5):
         attribs = multi_labeler(values_dict, code, "myope", "hypermetrope", "non astigmatic", "astigmatic", "normal", "reduced")
+
+    values_dict = values_to_dictionary('lenses.txt')
+    for el in range(0, len(target_col)):
+        if target_col[el] == 1:
+            target_col[el] = "hard"
+        elif target_col[el] == 2:
+            target_col[el] = "soft"
+        else: target_col[el] = "none"
 
     solo_values_set = different_values(attribs)
 
     for key in (values_dict.keys()):
         single_values_dict[key] = set(values_dict[key])
+    values_dict.__delitem__("lenses_target")
+    for key in values_dict:
+        set_b = set(values_dict[key])
+        conversion = dict()
+        n = 1
+        list_input = []
 
-    for attrib in single_values_dict:
-        total_error[attrib] = 0
-        total_error[attrib] = attrib_error(values_dict, single_values_dict, attrib)
+        for el in set_b:
+            conversion[el] = n
+            list_input.append(n)
+            n += 1
+        print(key)
 
-    # print(total_error)
+        errors_dict[key] = total_error(list_input, values_dict[key], target_col)
+
+
+    print(errors_dict)
+
 
 
 main()
