@@ -1,13 +1,12 @@
 def max_occ_per_val(ditt):
-
     max_per_val_attr = max(ditt, key=ditt.get)
-    return max_per_val_attr
+    return max_per_val_attr                         # returns the most class value for a given attribute value.
 
 
-def matrix_to_csv(file):
+def matrix_to_csv(file):                            # returns a CSV file from the dataset got at UCI Repository
     file = open(file)
     output = open("output.csv", "w")
-    output.write("age,sp,ast,tpr,lens\n")
+    output.write("age,sp,ast,tpr,lens\n")           # attribute names
     for line in file:
         output.write(line.split()[1])
         output.write(",")
@@ -21,15 +20,16 @@ def matrix_to_csv(file):
         output.write("\n")
 
 
-def labeler(v1, v2, val_dict, string):
+def labeler(v1, v2, val_dict, string):              # labels a value of an attribute with a string
     for i in range(0, len(val_dict[string])):
         if val_dict[string][i] == 1:
             val_dict[string][i] = v1
-        else: val_dict[string][i] = v2
+        else:
+            val_dict[string][i] = v2
     return val_dict
 
 
-def multi_labeler(val_dict, code, v1, v2, v3 ,v4, v5 ,v6):
+def multi_labeler(val_dict, code, v1, v2, v3, v4, v5, v6):      # labels all the dataset columns
 
     if code == 1:
         for i in range(0, len(val_dict["age"])):
@@ -53,7 +53,7 @@ def multi_labeler(val_dict, code, v1, v2, v3 ,v4, v5 ,v6):
     return val_dict
 
 
-def values_to_dictionary(file):
+def values_to_dictionary(file):                 # stores value into a dictionary for logical operations
 
     values_dict = dict()
     columns = ["age", "prescription", "astigmatism", "tear_production", "lenses_target"]
@@ -72,14 +72,14 @@ def values_to_dictionary(file):
     return values_dict
 
 
-def different_values(lista):
+def different_values(lista):            # assigns to each value of a given attribute ID for better handling the logic
     values = []
     for el in lista:
         values.append(set(lista[el]))
     return values
 
 
-def max_occ_per_val(ditt):
+def max_occ_per_val(ditt):                       # returns the most frequent class(target), for a given attribute VALUE
     max_per_val_attr = max(ditt, key=ditt.get)
     return max_per_val_attr
 
