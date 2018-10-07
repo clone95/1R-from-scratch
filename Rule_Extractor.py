@@ -1,12 +1,12 @@
 def max_occ_per_val(ditt):
     max_per_val_attr = max(ditt, key=ditt.get)
-    return max_per_val_attr                         # returns the most class value for a given attribute value.
+    return max_per_val_attr  # returns the most class value for a given attribute value.
 
 
-def matrix_to_csv(file):                            # returns a CSV file from the dataset got at UCI Repository
+def matrix_to_csv(file):  # returns a CSV file from the dataset got at UCI Repository
     file = open(file)
     output = open("output.csv", "w")
-    output.write("age,sp,ast,tpr,lens\n")           # attribute names
+    output.write("age,sp,ast,tpr,lens\n")  # attribute names
     for line in file:
         output.write(line.split()[1])
         output.write(",")
@@ -20,7 +20,7 @@ def matrix_to_csv(file):                            # returns a CSV file from th
         output.write("\n")
 
 
-def labeler(v1, v2, val_dict, string):              # labels a value of an attribute with a string
+def labeler(v1, v2, val_dict, string):  # labels a value of an attribute with a string
     for i in range(0, len(val_dict[string])):
         if val_dict[string][i] == 1:
             val_dict[string][i] = v1
@@ -29,10 +29,10 @@ def labeler(v1, v2, val_dict, string):              # labels a value of an attri
     return val_dict
 
 
-def multi_labeler(val_dict, code, v1, v2, v3, v4, v5, v6):      # labels all the dataset columns
+def multi_labeler(val_dict, code, v1, v2, v3, v4, v5, v6):  # labels all the dataset columns
 
-    if code == 1:
-        for i in range(0, len(val_dict["age"])):
+    if code == 1:                                           # i need this function if we want the values in string form
+        for i in range(0, len(val_dict["age"])):            # the dataset given by the UCI repo has values with INT
             if val_dict["age"][i] == 1:
                 val_dict["age"][i] = "young"
             elif val_dict["age"][i] == 2:
@@ -41,8 +41,8 @@ def multi_labeler(val_dict, code, v1, v2, v3, v4, v5, v6):      # labels all the
                 val_dict["age"][i] = "presbyopic"
         return val_dict
 
-    if code == 2:
-        labeler(v1, v2, val_dict, "prescription")
+    if code == 2:                                           # i have set some "launch code" to reuse this function
+        labeler(v1, v2, val_dict, "prescription")           # in different cases
 
     if code == 3:
         labeler(v3, v4, val_dict, "astigmatism")
@@ -53,7 +53,7 @@ def multi_labeler(val_dict, code, v1, v2, v3, v4, v5, v6):      # labels all the
     return val_dict
 
 
-def values_to_dictionary(file):                 # stores value into a dictionary for logical operations
+def values_to_dictionary(file):  # stores value into a dictionary for logical operations
 
     values_dict = dict()
     columns = ["age", "prescription", "astigmatism", "tear_production", "lenses_target"]
@@ -72,99 +72,90 @@ def values_to_dictionary(file):                 # stores value into a dictionary
     return values_dict
 
 
-def different_values(lista):            # assigns to each value of a given attribute ID for better handling the logic
+def different_values(lista):  # assigns to each value of a given attribute ID for better handling the logic
     values = []
     for el in lista:
         values.append(set(lista[el]))
     return values
 
 
-def max_occ_per_val(ditt):                       # returns the most frequent class(target), for a given attribute VALUE
+def max_occ_per_val(ditt):  # returns the most frequent class(target), for a given attribute VALUE
     max_per_val_attr = max(ditt, key=ditt.get)
     return max_per_val_attr
 
 
-def total_error(lista, attribute, target):
-    target_list = list(set(target))
+def total_error(attr_values_list, attribute, target):  # return total error of given attribute
 
-    primo = target_list[2]
-    secondo = target_list[1]
-    terzo = target_list[0]
-    attr = ["", primo, secondo, terzo]
-    max_dict = dict()
+    target_list = list(set(target))      # make an iterable set of the values of the given attribute
+    first = target_list[2]               # assign target values to variables
+    second = target_list[1]
+    third = target_list[0]
+    max_dict = dict()                    # will host the "most hit class" for each value of the attribute
     errors = dict()
     input_v = [0, 1, 2, 3]
-    corrects = 0
-    print(target_list)
-    for value in lista:
+    corrects = 0                         # corrects prediction, after knowing the most frequent class
+
+    for value in attr_values_list:       # for each value of the attribute e.g. [young, pre-presbyopic, presbyopic]...
         ditt = dict()
 
-        for el in set(target):       # initialized ditt
-            ditt[el] = 0
+        for el in set(target):           # ditt is a support dict() for holding the count of
+            ditt[el] = 0                 # the occurrences of each class, for each value.
 
-        for el in range(0, len(attribute)):
+        for el in range(0, len(attribute)):      # collects the occurrences of the target value for each attr value
 
-
-            if attribute[el] == value and target[el] == primo:
+            if attribute[el] == value and target[el] == first:
                 ditt[target[el]] += 1
 
-            elif attribute[el] == value and target[el] == secondo:
+            elif attribute[el] == value and target[el] == second:
                 ditt[target[el]] += 1
 
-            elif attribute[el] == value and target[el] == terzo:
+            elif attribute[el] == value and target[el] == third:
                 ditt[target[el]] += 1
 
-            max_dict[value] = max_occ_per_val(ditt)     # finds the most frequent value, per attrib_value
+            max_dict[value] = max_occ_per_val(ditt)  # finds the most frequent value, per attrib_value
 
+        print("attribute value encoded as ", value, "--->", ditt)  # prints the mapping of the value on the target class
 
-        print(value, "----->", ditt)
+        errors[value] = 1 - (ditt[max_dict[value]] / attribute.count(input_v[value]))  # error contribution
 
-        errors[value] = 1 - (ditt[max_dict[value]] / attribute.count(input_v[value]))
+        corrects += max(ditt.values())  # errors sum. For example ...
+        # ...an entire call of this function it sums the prediction error of young, pre-presbyopic and presbyopic values
 
+    error = (len(target) - corrects) / len(target)
 
-        corrects += max(ditt.values())
+    print("right values :  ", corrects)
+    print("wrong values :  ", len(target) - corrects)            # some output
+    print("ATTRIBUTE ERROR  ---> ", error, "\n")
+    print("_____________________________________\n\n")
 
-
-
-
-    print("corrects  ", corrects)
-    print("remaining",len(target)-corrects)
-    error = (len(target)- corrects)/len(target)
-    print("______",error)
-   # for err in errors:
-    #    corrects += errors[err]
-
-
-    return error      # each attrib value with his most frequent target value
+    return error        # each attrib value with his prediction error
 
 
 def main():
 
     errors_dict = dict()
-    values_dict = values_to_dictionary('lenses.txt')
-    target_col = values_dict.__getitem__("lenses_target")
-    values_dict.__delitem__("lenses_target")
+    values_dict = values_to_dictionary('lenses.txt')                # imports values from file to dict()
+    target_col = values_dict.__getitem__("lenses_target")           # copy the target column
+    values_dict.__delitem__("lenses_target")                        # drop the target column from the attrib dict()
     single_values_dict = dict()
 
+    # for code in range(1, 5):
+    #    attribs = multi_labeler(values_dict, code, "myope", "hypermetrope", "non astigmatic",
+    #                           "astigmatic", "normal", "reduced")
 
-    for code in range(1, 5):
-        attribs = multi_labeler(values_dict, code, "myope", "hypermetrope", "non astigmatic", "astigmatic", "normal", "reduced")
-
-    values_dict = values_to_dictionary('lenses.txt')
-    for el in range(0, len(target_col)):
+    for el in range(0, len(target_col)):                            # converts target values (INT) in the correct labels
         if target_col[el] == 1:
             target_col[el] = "hard"
         elif target_col[el] == 2:
             target_col[el] = "soft"
-        else: target_col[el] = "none"
+        else:
+            target_col[el] = "none"
 
-    solo_values_set = different_values(attribs)
-
-    for key in (values_dict.keys()):
+    for key in (values_dict.keys()):                                # takes distinct attribute values
         single_values_dict[key] = set(values_dict[key])
-    values_dict.__delitem__("lenses_target")
-    for key in values_dict:
-        set_b = set(values_dict[key])
+
+    for key in values_dict:                                         # this block iterate on the attribute list
+        set_b = set(values_dict[key])                               # outputting the error of each attribute
         conversion = dict()
         n = 1
         list_input = []
@@ -173,13 +164,12 @@ def main():
             conversion[el] = n
             list_input.append(n)
             n += 1
-        print(key)
 
-        errors_dict[key] = total_error(list_input, values_dict[key], target_col)
+        print(key.upper())                                          # which attribute am i studying in this iteration?
 
+        errors_dict[key] = total_error(list_input, values_dict[key], target_col)    # the logic job of the error
 
     print(errors_dict)
-
 
 
 main()
