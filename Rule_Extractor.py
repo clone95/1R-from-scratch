@@ -84,17 +84,28 @@ def max_occ_per_val(ditt):  # returns the most frequent class(target), for a giv
     return max_per_val_attr
 
 
-def total_error(attr_values_list, attribute, target):  # return total error of given attribute
+def get_occurrences(attribute, value, target, first, second, third, ditt, el):
+
+        if attribute[el] == value and target[el] == first:
+            ditt[target[el]] += 1
+
+        elif attribute[el] == value and target[el] == second:
+            ditt[target[el]] += 1
+
+        elif attribute[el] == value and target[el] == third:
+            ditt[target[el]] += 1
+
+
+def total_error(attr_values_list, attribute, target, temp_dict, dict_list):  # return total error of given attribute
 
     target_list = list(set(target))      # make an iterable set of the values of the given attribute
-    first = target_list[2]               # assign target values to variables
+    first = target_list[0]               # assign target values to variables
     second = target_list[1]
-    third = target_list[0]
+    third = target_list[2]
     max_dict = dict()                    # will host the "most hit class" for each value of the attribute
     errors = dict()
     input_v = [0, 1, 2, 3]
     corrects = 0                         # corrects prediction, after knowing the most frequent class
-
     for value in attr_values_list:       # for each value of the attribute e.g. [young, pre-presbyopic, presbyopic]...
         ditt = dict()
 
@@ -103,14 +114,7 @@ def total_error(attr_values_list, attribute, target):  # return total error of g
 
         for el in range(0, len(attribute)):      # collects the occurrences of the target value for each attr value
 
-            if attribute[el] == value and target[el] == first:
-                ditt[target[el]] += 1
-
-            elif attribute[el] == value and target[el] == second:
-                ditt[target[el]] += 1
-
-            elif attribute[el] == value and target[el] == third:
-                ditt[target[el]] += 1
+            get_occurrences(attribute, value, target, first, second, third, ditt, el)
 
             max_dict[value] = max_occ_per_val(ditt)  # finds the most frequent value, per attrib_value
 
@@ -121,14 +125,23 @@ def total_error(attr_values_list, attribute, target):  # return total error of g
         corrects += max(ditt.values())  # errors sum. For example ...
         # ...an entire call of this function it sums the prediction error of young, pre-presbyopic and presbyopic values
 
+        dict_list.append(ditt)         # i save the several occurrences over each attribute
+
     error = (len(target) - corrects) / len(target)
 
     print("right values :  ", corrects)
-    print("wrong values :  ", len(target) - corrects)            # some output
+    print("wrong values :  ", len(target) - corrects, "\n")            # some output
     print("ATTRIBUTE ERROR  ---> ", error, "\n")
     print("_____________________________________\n\n")
 
     return error        # each attrib value with his prediction error
+
+
+def printer(attribute):
+    print("value : 1  ---> Lenses : ", max_occ_per_val(attribute[0]).upper())
+    print("value : 2  ---> Lenses : ", max_occ_per_val(attribute[1]).upper())
+    if len(attribute) == 3:
+        print("value : 3  --->", attribute[1])
 
 
 def main():
@@ -138,11 +151,11 @@ def main():
     target_col = values_dict.__getitem__("lenses_target")           # copy the target column
     values_dict.__delitem__("lenses_target")                        # drop the target column from the attrib dict()
     single_values_dict = dict()
-
-    # for code in range(1, 5):
-    #    attribs = multi_labeler(values_dict, code, "myope", "hypermetrope", "non astigmatic",
-    #                           "astigmatic", "normal", "reduced")
-
+    best_dict = dict()
+    temp_dict = dict()
+    dict_list = []
+    iter_dict = dict()
+    a = 0
     for el in range(0, len(target_col)):                            # converts target values (INT) in the correct labels
         if target_col[el] == 1:
             target_col[el] = "hard"
@@ -154,8 +167,9 @@ def main():
     for key in (values_dict.keys()):                                # takes distinct attribute values
         single_values_dict[key] = set(values_dict[key])
 
-    for key in values_dict:                                         # this block iterate on the attribute list
-        set_b = set(values_dict[key])                               # outputting the error of each attribute
+    for key in values_dict:
+        iter_dict[key] = a
+        set_b = set(values_dict[key])
         conversion = dict()
         n = 1
         list_input = []
@@ -164,12 +178,48 @@ def main():
             conversion[el] = n
             list_input.append(n)
             n += 1
+        a += 1
+        print(key.upper(), "\n")                                 # which attribute am I studying in this iteration?
 
-        print(key.upper())                                          # which attribute am i studying in this iteration?
+        errors_dict[key] = total_error(list_input, values_dict[key], target_col, temp_dict, dict_list)  # attr. error
 
-        errors_dict[key] = total_error(list_input, values_dict[key], target_col)    # the logic job of the error
+    best_predictor = min(errors_dict, key=errors_dict.get)
 
-    print(errors_dict)
+    best_pred_list = list(set(values_dict[best_predictor]))
+
+    for code in range(1, 5):
+        attribs = multi_labeler(values_dict, code, "myope", "hypermetrope", "non astigmatic",
+                                "astigmatic", "normal", "reduced")
+
+    best_pred_values = list(set(attribs[best_predictor]))
+
+    for i in range(0, len(best_pred_list)):
+        best_dict[best_pred_list[i]] = best_pred_values[i]
+
+    print("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n")
+
+    print("CONCLUSIONS AND SUGGESTION FOR THE MEDKNOW TEAM:\n")
+    print("The best predictor for the lenses type is the parameter", best_predictor.upper(), "\n")
+
+    age = dict_list[:3]
+    prescription = dict_list[3:5]
+    astigmatism = dict_list[5:7]
+    tear_rate = dict_list[7:]
+
+    print("Suggestions for the lenses: \n")
+
+    if best_predictor == "age":
+        printer(age)
+        print("(1) young, (2) pre-presbyopic, (3) presbyopic")
+    elif best_predictor == "prescription":
+        print("(1) myope, (2) hypermetrope")
+        printer(prescription)
+    elif best_predictor == "astigmatism":
+        print("(1) no, (2) yes")
+        printer(astigmatism)
+    else:
+        print("(1) reduced, (2) normal\n")
+        printer(tear_rate)
 
 
 main()
