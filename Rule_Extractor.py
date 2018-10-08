@@ -1,3 +1,5 @@
+# THE CODE IS SO MUCH COMMENTED BECAUSE IT'S A PROJECT FOR THE UNIVERSITY SO I NEED TO EXPLAIN WELL MY IMPLEMENTATION CHOICES.  
+
 def max_occ_per_val(ditt):
     max_per_val_attr = max(ditt, key=ditt.get)
     return max_per_val_attr  # returns the most class value for a given attribute value.
