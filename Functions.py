@@ -96,6 +96,42 @@ def get_occurrences(attribute, value, target, first, second, third, ditt, el):
             ditt[target[el]] += 1
 
 
+def add_record(new_record, lens):
+    file = open("lenses.txt", "a")
+
+    if new_record[0] == "young":
+        age = '1'
+    elif new_record[0] == "pre-presbyopic":
+        age = '2'
+    else:
+        age = '3'
+
+    if new_record[1] == "myope":
+        dis = '1'
+    else:
+        dis = '2'
+
+    if new_record[2] == "yes":
+        ast = '1'
+    else:
+        ast = '2'
+
+    if new_record[3] == "reduced":
+        tpr = '1'
+    else:
+        tpr = '2'
+
+    if lens == "hard":
+        lenses = '1'
+    elif lens == "soft":
+        lenses = '2'
+    else:
+        lenses = '3'
+
+    record = age + "  " + dis + "  " + ast + "  " + tpr + "  " + lenses
+    file.write(record)
+
+
 def total_error(attr_values_list, attribute, target, temp_dict, dict_list):  # return total error of given attribute
 
     target_list = list(set(target))      # make an iterable set of the values of the given attribute
@@ -131,14 +167,64 @@ def total_error(attr_values_list, attribute, target, temp_dict, dict_list):  # r
 
     print("right values :  ", corrects)
     print("wrong values :  ", len(target) - corrects, "\n")            # some output
-    print("ATTRIBUTE ERROR  ---> ", error, "\n")
-    print("_____________________________________\n\n")
+    print("ATTRIBUTE ERROR  ---> ", error, "")
+    print("_____________________________________\n")
 
     return error        # each attrib value with his prediction error
 
 
-def printer(attribute):
+def printer(attribute, predictor, list_dict, precision):
     print("value : 1  ---> Lenses : ", max_occ_per_val(attribute[0]).upper())
     print("value : 2  ---> Lenses : ", max_occ_per_val(attribute[1]).upper())
     if len(attribute) == 3:
         print("value : 3  --->", attribute[1])
+    precision = 1 - precision
+    print("\n\n|||||||||||||||||||||||||||||||||||||||||||||")
+    print("|||||||||||||||||||||||||||||||||||||||||||||")
+    print("\n\nWelcome Medic : insert parameters of the patient")
+    age = input("\nInsert the age :\n")
+    disease = input("\nInsert the disease :\n")
+    astigmatism = input("\n\Insert the astigmatism :   y  /  n\n")
+    tear_rate = input("\nInsert the tear rate:\n\n")
+
+    if predictor == "tear_production":
+        if tear_rate == "reduced":
+            best_value_occ = list_dict[7]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record\n")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?\n")
+                add_record(new_record, shot)
+                print("Record added!")
+        else:
+            best_value_occ = list_dict[8]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+
+            else:
+                shot = input("which which lens is required is this case?")
+                add_record(new_record, shot)
+                print("Record added!")
+
+
+
+
+
+
+
+
+

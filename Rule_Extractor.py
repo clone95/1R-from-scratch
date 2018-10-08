@@ -64,21 +64,20 @@ def main():
     prescription = dict_list[3:5]
     astigmatism = dict_list[5:7]
     tear_rate = dict_list[7:]
-
     print("Suggestions for the lenses: \n")
 
     if best_predictor == "age":
-        printer(age)
         print("(1) young, (2) pre-presbyopic, (3) presbyopic")
+        printer(age, best_predictor, dict_list, errors_dict["age"])
     elif best_predictor == "prescription":
         print("(1) myope, (2) hypermetrope")
-        printer(prescription)
+        printer(prescription, best_predictor, dict_list, errors_dict["prescription"])
     elif best_predictor == "astigmatism":
         print("(1) no, (2) yes")
-        printer(astigmatism)
+        printer(astigmatism, best_predictor, dict_list, errors_dict["astigmatism"])
     else:
         print("(1) reduced, (2) normal\n")
-        printer(tear_rate)
+        printer(tear_rate, best_predictor, dict_list, errors_dict["tear_production"])
 
 
 main()
