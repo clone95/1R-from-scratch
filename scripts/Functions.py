@@ -1,3 +1,22 @@
+import pickle as pic
+import datetime
+import shutil
+
+
+class Model:
+    def __init__(self, attribute, rule, id):
+        self.rule = attribute
+        self.precision = rule
+        self.id = id
+
+
+def archive_model(best_predictor, error):
+    name = str(datetime.datetime.now())[:13] + ".build"
+    obj = Model(best_predictor, error, name)
+    pic.dump(obj, open(name, "wb"))
+    shutil.move(name, "previous_builds")
+
+
 def max_occ_per_val(ditt):
     max_per_val_attr = max(ditt, key=ditt.get)
     return max_per_val_attr  # returns the most class value for a given attribute value.
@@ -97,7 +116,7 @@ def get_occurrences(attribute, value, target, first, second, third, ditt, el):
 
 
 def add_record(new_record, lens):
-    file = open("lenses.txt", "a")
+    file = open("to_add.txt", "a")
 
     if new_record[0] == "young":
         age = '1'
@@ -129,11 +148,10 @@ def add_record(new_record, lens):
         lenses = '3'
 
     record = age + "  " + dis + "  " + ast + "  " + tpr + "  " + lenses
-    file.write(record)
+    file.write(record + "\n")
 
 
-def total_error(attr_values_list, attribute, target, temp_dict, dict_list):  # return total error of given attribute
-
+def total_error(attr_values_list, attribute, target, dict_list):  # return total error of given attribute
     target_list = list(set(target))      # make an iterable set of the values of the given attribute
     first = target_list[0]               # assign target values to variables
     second = target_list[1]
@@ -182,10 +200,61 @@ def printer(attribute, predictor, list_dict, precision):
     print("\n\n|||||||||||||||||||||||||||||||||||||||||||||")
     print("|||||||||||||||||||||||||||||||||||||||||||||")
     print("\n\nWelcome Medic : insert parameters of the patient")
-    age = input("\nInsert the age :\n")
+    age = input("\nInsert the age :\n\n\n\n\n")
     disease = input("\nInsert the disease :\n")
     astigmatism = input("\n\Insert the astigmatism :   y  /  n\n")
     tear_rate = input("\nInsert the tear rate:\n\n")
+
+    # AGE CASE
+
+    if predictor == "age":
+        if age == "young":
+            best_value_occ = list_dict[0]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record\n")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?\n")
+                add_record(new_record, shot)
+                print("Record added!")
+        elif age == "pre-presbyopic":
+            best_value_occ = list_dict[1]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?")
+                add_record(new_record, shot)
+                print("Record added!")
+        else:
+            best_value_occ = list_dict[2]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?")
+                add_record(new_record, shot)
+                print("Record added!")
+
+    # TEAR PRODUCTION CASE
 
     if predictor == "tear_production":
         if tear_rate == "reduced":
@@ -214,7 +283,74 @@ def printer(attribute, predictor, list_dict, precision):
             if choice == "yes":
                 add_record(new_record, shot)
                 print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?")
+                add_record(new_record, shot)
+                print("Record added!")
 
+    # PRESCRIPTION CASE
+
+    if predictor == "prescription":
+        if tear_rate == "myope":
+            best_value_occ = list_dict[3]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record\n")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?\n")
+                add_record(new_record, shot)
+                print("Record added!")
+        else:
+            best_value_occ = list_dict[4]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?")
+                add_record(new_record, shot)
+                print("Record added!")
+
+    # ASTIGMATISM CASE
+
+    if predictor == "astigmatism":
+        if astigmatism == "reduced":
+            best_value_occ = list_dict[5]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record\n")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
+            else:
+                shot = input("which which lens is required is this case?\n")
+                add_record(new_record, shot)
+                print("Record added!")
+        else:
+            best_value_occ = list_dict[6]
+            shot = max(best_value_occ, key=best_value_occ.get)
+            print("\n\n", best_value_occ)
+            print("\nLENSES TYPE  :  ", shot)
+            print("\nATTENTION: the precision of the system is ", precision)
+            choice = input("\nCorrect prediction? press yes to insert record")
+            new_record = [age, disease, astigmatism, tear_rate, shot]
+            if choice == "yes":
+                add_record(new_record, shot)
+                print("Record added!")
             else:
                 shot = input("which which lens is required is this case?")
                 add_record(new_record, shot)

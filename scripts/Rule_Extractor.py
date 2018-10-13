@@ -1,20 +1,18 @@
-# THE CODE IS SO MUCH COMMENTED BECAUSE IT'S A PROJECT FOR THE UNIVERSITY SO I NEED TO EXPLAIN WELL MY IMPLEMENTATION CHOICES.  
-
-from Functions import  *
+# SO MUCH COMMENTED BECAUSE IT'S A PROJECT FOR THE DEGREE SO I NEED TO EXPLAIN WELL MY IMPLEMENTATION CHOICES.
+from scripts.Functions import *
 
 
 def main():
-
     errors_dict = dict()
     values_dict = values_to_dictionary('lenses.txt')                # imports values from file to dict()
     target_col = values_dict.__getitem__("lenses_target")           # copy the target column
     values_dict.__delitem__("lenses_target")                        # drop the target column from the attrib dict()
     single_values_dict = dict()
     best_dict = dict()
-    temp_dict = dict()
     dict_list = []
     iter_dict = dict()
     a = 0
+
     for el in range(0, len(target_col)):                            # converts target values (INT) in the correct labels
         if target_col[el] == 1:
             target_col[el] = "hard"
@@ -40,7 +38,7 @@ def main():
         a += 1
         print(key.upper(), "\n")                                 # which attribute am I studying in this iteration?
 
-        errors_dict[key] = total_error(list_input, values_dict[key], target_col, temp_dict, dict_list)  # attr. error
+        errors_dict[key] = total_error(list_input, values_dict[key], target_col, dict_list)  # attr. error
 
     best_predictor = min(errors_dict, key=errors_dict.get)
 
@@ -69,15 +67,31 @@ def main():
     if best_predictor == "age":
         print("(1) young, (2) pre-presbyopic, (3) presbyopic")
         printer(age, best_predictor, dict_list, errors_dict["age"])
+        if m == 0:
+            archive_model(best_predictor, errors_dict[best_predictor])
+
     elif best_predictor == "prescription":
         print("(1) myope, (2) hypermetrope")
         printer(prescription, best_predictor, dict_list, errors_dict["prescription"])
+        if m == 0:
+            archive_model(best_predictor, errors_dict[best_predictor])
+
     elif best_predictor == "astigmatism":
         print("(1) no, (2) yes")
         printer(astigmatism, best_predictor, dict_list, errors_dict["astigmatism"])
+        if m == 0:
+            archive_model(best_predictor, errors_dict[best_predictor])
     else:
         print("(1) reduced, (2) normal\n")
         printer(tear_rate, best_predictor, dict_list, errors_dict["tear_production"])
+        if m == 0:
+            archive_model(best_predictor, errors_dict[best_predictor])
+
+
+while True:
+    m = 0
+    main()
+    m += 1
 
 
 main()
